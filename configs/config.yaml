@@ -5,7 +5,7 @@ model:
 
 # 数据集配置
 data:
-  dataset: 'configs/datasets/dspcbsd.yaml'  # PCB缺陷数据集配置
+  dataset: 'configs/datasets/pku_pcb.yaml'  # PKU PCB 数据集
   img_size: 384
   batch_size: 16
   workers: 4

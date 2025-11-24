@@ -107,6 +107,13 @@ Kaggle Notebook 的 `Outputs` 会自动包含 `models/best.pt`、`results/` 等�
 - **CPU 多阶段训练**: `configs/config.yaml` 的 `training.stages` 预设“冻结+强增强”与“解冻微调”两段流程，再配合 `virtual_batch`(nbs) 与数据缓存，在无 GPU 条件下仍可稳定收敛。
 - **非 HB 加权采样**: `non_hb_extra_copies` 会在训练列表中复制包含非 Hole-Break 缺陷的图片，等效提升其 loss 权重而无需延长 epoch。
 
+### 切换至 PKU_PCB 数据集
+若希望使用 `PKU_PCB`，先执行一次转换脚本（会将分类格式转成 YOLO 检测格式）:
+```bash
+python scripts/convert_pku_pcb.py --source PKU_PCB --target PKU_PCB/Data_YOLO
+```
+转换完成后，默认训练配置 (`configs/config.yaml` / `configs/config.kaggle.yaml`) 已指向 `configs/datasets/pku_pcb.yaml`，可直接运行 `src/train.py`。
+
 ## 支持的类别 (DsPCBSD+ 9类)
 - Short (SH)
 - Spur (SP)

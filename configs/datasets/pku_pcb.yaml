@@ -1,0 +1,13 @@
+path: PKU_PCB/Data_YOLO
+train: images/train
+val: images/val
+test: images/test
+nc: 6
+names:
+  - missing_hole
+  - mouse_bite
+  - open_circuit
+  - short
+  - spur
+  - spurious_copper
+

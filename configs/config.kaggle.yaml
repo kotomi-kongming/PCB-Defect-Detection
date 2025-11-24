@@ -6,7 +6,7 @@ model:
   type: 'detect'
 
 data:
-  dataset: '/kaggle/working/pcb/configs/datasets/dspcbsd.yaml'
+  dataset: '/kaggle/working/pcb/configs/datasets/pku_pcb.yaml'
   img_size: 384
   batch_size: 16
   workers: 2          # Kaggle GPU 通常只允许 2 个 worker

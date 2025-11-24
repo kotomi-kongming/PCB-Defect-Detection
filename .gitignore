@@ -21,6 +21,9 @@ data/coco/annotations/
 data/coco/*.zip
 data/samples/*.jpg
 data/samples/*.png
+DsPCBSD+/
+PKU_PCB/Data_YOLO/
+PKU_PCB/weighted_lists/
 
 # 模型权重
 models/*.pt
@@ -44,4 +47,3 @@ Thumbs.db
 *.log
 *.csv
 *.json
-DsPCBSD+/
