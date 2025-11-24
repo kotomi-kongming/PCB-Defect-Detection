@@ -1,0 +1,19 @@
+# DsPCBSD+ PCB 缺陷检测数据集
+# 数据已放置在项目根目录下的 `DsPCBSD+/Data_YOLO` 中
+
+path: D:/简历项目/PCB缺陷检测/DsPCBSD+/Data_YOLO
+train: images/train
+val: images/val
+test: images/val
+nc: 9
+names:
+  - Short (SH)
+  - Spur (SP)
+  - Spurious-Copper (SC)
+  - Open (OP)
+  - Mouse-Bite (MB)
+  - Hole-Break (HB)
+  - Copper-Spatter (CS)
+  - Copper-Foil-Overlap (CFO)
+  - Broken-Mask-Foil-Overlap (BMFO)
+

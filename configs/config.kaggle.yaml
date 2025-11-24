@@ -1,0 +1,121 @@
+# Kaggle Notebooks 专用配置
+# 假设代码仓库被克隆到 /kaggle/working/pcb
+
+model:
+  name: 'yolov8n.pt'
+  type: 'detect'
+
+data:
+  dataset: '/kaggle/working/pcb/configs/datasets/dspcbsd.yaml'
+  img_size: 384
+  batch_size: 16
+  workers: 2          # Kaggle GPU 通常只允许 2 个 worker
+  cache_images: 'ram'
+  close_mosaic: 8
+
+training:
+  epochs: 60
+  patience: 10
+  device: 0           # 使用 Kaggle 提供的单块 GPU
+  freeze_layers: 6
+  amp: true
+  cosine_lr: true
+  dropout_rate: 0.15
+  dropout_layers: 3
+  pruning_amount: 0.2
+  copy_paste: 0.1
+  mixup: 0.05
+  cutmix: 0.05
+  erasing: 0.2
+  auto_augment: 'randaugment'
+  box: 1.0
+  cls: 0.5
+  dfl: 1.0
+  virtual_batch: 64
+  non_hb_extra_copies: 1
+  hb_class_keyword: 'Hole-Break'
+
+  optimizer: 'SGD'
+  lr0: 0.012
+  lrf: 0.012
+  momentum: 0.937
+  weight_decay: 0.0005
+
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 0.0
+  translate: 0.1
+  scale: 0.4
+  shear: 0.0
+  perspective: 0.0
+  flipud: 0.0
+  fliplr: 0.5
+  mosaic: 0.8
+
+  stages:
+    - name: 'coarse'
+      epochs: 30
+      freeze_layers: 6
+      dropout_rate: 0.2
+      dropout_layers: 3
+      pruning_amount: 0.2
+      lr0: 0.012
+      lrf: 0.012
+      mosaic: 0.85
+      copy_paste: 0.25
+      mixup: 0.18
+      cutmix: 0.2
+      erasing: 0.45
+      auto_augment: 'randaugment'
+      scale: 0.6
+      box: 1.05
+      cls: 0.55
+      dfl: 1.0
+      close_mosaic: 10
+      run_name: 'train_stage_coarse'
+
+    - name: 'finetune'
+      epochs: 30
+      freeze_layers: 0
+      dropout_rate: 0.05
+      dropout_layers: 1
+      pruning_amount: 0.0
+      lr0: 0.006
+      lrf: 0.006
+      mosaic: 0.0
+      copy_paste: 0.35
+      mixup: 0.0
+      cutmix: 0.0
+      erasing: 0.15
+      auto_augment: 'augmix'
+      scale: 0.45
+      box: 1.25
+      dfl: 1.15
+      cls: 0.45
+      close_mosaic: 1
+      conf_thres: 0.001
+      iou_thres: 0.7
+      run_name: 'train_stage_finetune'
+
+validation:
+  val_interval: 1
+  save_period: 5
+  conf_thres: 0.001
+  iou_thres: 0.65
+  split: 'val'
+
+paths:
+  weights: 'models/'
+  results: 'results/'
+  logs: 'logs/'
+
+report:
+  output: 'results/eval_report.md'
+  include_images:
+    - BoxPR_curve.png
+    - BoxP_curve.png
+    - BoxR_curve.png
+    - BoxF1_curve.png
+    - confusion_matrix.png
+

@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 数据集
+data/coco/images/
+data/coco/annotations/
+data/coco/*.zip
+data/samples/*.jpg
+data/samples/*.png
+
+# 模型权重
+models/*.pt
+!models/.gitkeep
+
+# 训练结果
+results/
+logs/
+runs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 其他
+*.log
+*.csv
+*.json
+DsPCBSD+
