@@ -22,8 +22,8 @@ data/coco/*.zip
 data/samples/*.jpg
 data/samples/*.png
 DsPCBSD+/
-PKU_PCB/Data_YOLO/
-PKU_PCB/weighted_lists/
+PKU_PCB/
+
 
 # 模型权重
 models/*.pt
