@@ -113,7 +113,10 @@ def prepare_weighted_dataset_yaml(base_yaml: Path, training_cfg: dict) -> Tuple[
         if contains_non_hb(infer_label_path(img_path), hb_index):
             weighted_entries.extend([path_str] * extra_copies)
 
-    weighted_txt = dataset_root / f'weighted_train_nonhb_x{extra_copies}.txt'
+    dest_dir = dataset_root
+    if not os.access(dest_dir, os.W_OK):
+        dest_dir = Path.cwd() / 'weighted_lists'
+    weighted_txt = dest_dir / f'weighted_train_nonhb_x{extra_copies}.txt'
     weighted_txt.parent.mkdir(parents=True, exist_ok=True)
     weighted_txt.write_text("\n".join(weighted_entries), encoding='utf-8')
 
