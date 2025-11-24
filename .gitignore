@@ -30,6 +30,7 @@ models/*.pt
 results/
 logs/
 runs/
+yolov8n.pt
 
 # Jupyter
 .ipynb_checkpoints/
