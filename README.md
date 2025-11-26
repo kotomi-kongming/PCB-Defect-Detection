@@ -70,6 +70,14 @@ python src/evaluate.py --weights models/best.pt \
 ```
 评估脚本会在 `runs/detect/val*/` 下写出曲线/混淆矩阵，并生成 `metrics_summary.json` 与 Markdown 报告（默认 `results/eval_report.md`），可直接引用到交付/简历材料中。
 
+### 6. 启动推理可视化应用
+项目提供了基于 Streamlit 的前端，可上传图片并返回标注结果:
+```bash
+pip install -r requirements.txt  # 确保安装 streamlit
+streamlit run app/app.py
+```
+默认加载 `models/best.pt`，也可以通过设置环境变量 `PCB_WEIGHTS=/path/to/model.pt` 指定自定义权重。
+
 ## 在 Kaggle Notebooks 上训练
 1. 在 Kaggle Notebook 中启用 GPU 和网络，`git clone` 本仓库到 `/kaggle/working/pcb`。  
 2. 将数据集上传为 Kaggle Dataset（例如 `pcb-dspcbsd`），然后运行：
@@ -106,9 +114,10 @@ Kaggle Notebook 的 `Outputs` 会自动包含 `models/best.pt`、`results/` 等�
 - **AMP + 图像缓存**: 配置文件中开启混合精度训练与 dataloader cache，配合缩小的 512 输入分辨率与 60 epochs，加速完整训练周期。
 - **CPU 多阶段训练**: `configs/config.yaml` 的 `training.stages` 预设“冻结+强增强”与“解冻微调”两段流程，再配合 `virtual_batch`(nbs) 与数据缓存，在无 GPU 条件下仍可稳定收敛。
 - **非 HB 加权采样**: `non_hb_extra_copies` 会在训练列表中复制包含非 Hole-Break 缺陷的图片，等效提升其 loss 权重而无需延长 epoch。
+- **PKU_PCB 预热 + 增强策略**: 针对 PKU_PCB 的配置使用“Warmup→Coarse→Finetune”(10+35+15 epoch)。首阶段仅取 40% 数据快速预热；中期恢复 Mosaic/CopyPaste/CutMix 等增强；末期关闭增强做精细微调。同时 `negative_extra_copies` 会复制无缺陷样本，帮助模型学会输出“无缺陷”情形。
 
 ### 切换至 PKU_PCB 数据集
-若希望使用 `PKU_PCB`，先执行一次转换脚本（会将分类格式转成 YOLO 检测格式）:
+若希望使用 `PKU_PCB`，先执行一次转换脚本（会将分类格式转成 YOLO 检测格式，并引入 `no_defect` 类别）:
 ```bash
 python scripts/convert_pku_pcb.py --source PKU_PCB --target PKU_PCB/Data_YOLO
 ```

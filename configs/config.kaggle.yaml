@@ -6,7 +6,7 @@ model:
   type: 'detect'
 
 data:
-  dataset: '/kaggle/working/pcb/configs/datasets/pku_pcb.yaml'
+  dataset: '/kaggle/working/pcb/configs/datasets/dspcbsd.yaml'
   img_size: 384
   batch_size: 16
   workers: 2          # Kaggle GPU 通常只允许 2 个 worker
@@ -33,6 +33,7 @@ training:
   dfl: 1.0
   virtual_batch: 64
   non_hb_extra_copies: 1
+  negative_extra_copies: 0
   hb_class_keyword: 'Hole-Break'
 
   optimizer: 'SGD'
@@ -73,7 +74,7 @@ training:
       cls: 0.55
       dfl: 1.0
       close_mosaic: 10
-      run_name: 'train_stage_coarse'
+      run_name: 'kaggle_train_coarse'
 
     - name: 'finetune'
       epochs: 30
@@ -89,14 +90,14 @@ training:
       cutmix: 0.0
       erasing: 0.15
       auto_augment: 'augmix'
-      scale: 0.45
-      box: 1.25
-      dfl: 1.15
-      cls: 0.45
+      scale: 0.4
+      box: 1.0
+      cls: 0.5
+      dfl: 1.0
       close_mosaic: 1
       conf_thres: 0.001
       iou_thres: 0.7
-      run_name: 'train_stage_finetune'
+      run_name: 'kaggle_train_finetune'
 
 validation:
   val_interval: 1

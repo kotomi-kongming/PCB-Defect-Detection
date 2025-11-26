@@ -34,6 +34,7 @@ DEFECT_CLASSES = [
     "short",
     "spur",
     "spurious_copper",
+    "no_defect",
 ]
 
 NEGATIVE_DIRS = {"no_defect", "normal"}
@@ -74,11 +75,11 @@ def convert_split(split_name: str, source_root: Path, target_root: Path) -> None
 
             label_path = labels_dir / f"{img_path.stem}.txt"
             if is_negative:
+                cls_id = DEFECT_CLASSES.index("no_defect")
+
+            if cls_id is None:
                 label_path.touch(exist_ok=True)
                 continue
-
-            with Image.open(img_path) as im:
-                width, height = im.size
 
             x_center = 0.5
             y_center = 0.5

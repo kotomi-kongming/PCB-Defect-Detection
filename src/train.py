@@ -66,11 +66,20 @@ def contains_non_hb(label_path: Path, hb_index: int) -> bool:
     return False
 
 
+def is_negative_sample(label_path: Path) -> bool:
+    """若标签文件不存在或为空，则视为无缺陷样本"""
+    if not label_path.exists():
+        return True
+    for line in label_path.read_text(encoding='utf-8').splitlines():
+        if line.strip():
+            return False
+    return True
+
+
 def prepare_weighted_dataset_yaml(base_yaml: Path, training_cfg: dict) -> Tuple[Path, Optional[Path]]:
     """生成带有非HB样本加权的临时数据集yaml"""
     extra_copies = int(training_cfg.get('non_hb_extra_copies', 0) or 0)
-    if extra_copies <= 0:
-        return base_yaml, None
+    negative_copies = int(training_cfg.get('negative_extra_copies', 0) or 0)
 
     dataset_cfg = yaml.safe_load(base_yaml.read_text(encoding='utf-8'))
     dataset_root = Path(dataset_cfg.get('path', base_yaml.parent)).resolve()
@@ -95,23 +104,28 @@ def prepare_weighted_dataset_yaml(base_yaml: Path, training_cfg: dict) -> Tuple[
         )
 
     names = dataset_cfg.get('names', [])
-    hb_index = training_cfg.get('hb_class_index')
-    hb_keyword = str(training_cfg.get('hb_class_keyword', 'Hole-Break')).lower()
-    if hb_index is None:
-        for idx, name in enumerate(names):
-            if hb_keyword in str(name).lower():
-                hb_index = idx
-                break
-    if hb_index is None:
-        raise ValueError("无法定位 HB 类别索引，请在配置中提供 hb_class_index 或 hb_class_keyword。")
+    hb_index = None
+    if extra_copies > 0:
+        hb_index = training_cfg.get('hb_class_index')
+        hb_keyword = str(training_cfg.get('hb_class_keyword', 'Hole-Break')).lower()
+        if hb_index is None:
+            for idx, name in enumerate(names):
+                if hb_keyword in str(name).lower():
+                    hb_index = idx
+                    break
+        if hb_index is None:
+            raise ValueError("无法定位 HB 类别索引，请在配置中提供 hb_class_index 或 hb_class_keyword。")
 
     weighted_entries: List[str] = []
     for img_path in image_paths:
         img_path = img_path.resolve()
         path_str = str(img_path)
         weighted_entries.append(path_str)
-        if contains_non_hb(infer_label_path(img_path), hb_index):
+        label_path = infer_label_path(img_path)
+        if extra_copies > 0 and contains_non_hb(label_path, hb_index):
             weighted_entries.extend([path_str] * extra_copies)
+        if negative_copies > 0 and is_negative_sample(label_path):
+            weighted_entries.extend([path_str] * negative_copies)
 
     dest_dir = dataset_root
     if not os.access(dest_dir, os.W_OK):
@@ -302,6 +316,7 @@ def build_train_args(
         'cls': val(training_cfg, 'cls', 0.5),
         'dfl': val(training_cfg, 'dfl', 1.0),
         'nbs': val(training_cfg, 'virtual_batch', 64),
+        'fraction': val(training_cfg, 'fraction', 1.0),
     }
 
 def train(config_path):

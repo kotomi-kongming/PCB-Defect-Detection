@@ -5,24 +5,24 @@ model:
 
 # 数据集配置
 data:
-  dataset: 'configs/datasets/pku_pcb.yaml'  # PKU PCB 数据集
-  img_size: 384
-  batch_size: 16
-  workers: 4
-  cache_images: 'disk'
+  dataset: 'configs/datasets/dspcbsd.yaml'  # DsPCBSD+ 数据集
+  img_size: 320
+  batch_size: 8
+  workers: 6
+  cache_images: 'ram'
   close_mosaic: 8
 
 # 训练参数
 training:
-  epochs: 80
-  patience: 15  # Early stopping
+  epochs: 50
+  patience: 8
   device: 'cpu'  # 当前环境仅CPU可用
   freeze_layers: 6
   amp: true
   cosine_lr: true
-  dropout_rate: 0.15
-  dropout_layers: 3
-  pruning_amount: 0.2
+  dropout_rate: 0.05
+  dropout_layers: 2
+  pruning_amount: 0.1
   copy_paste: 0.1
   mixup: 0.05
   box: 1.0
@@ -31,9 +31,10 @@ training:
   auto_augment: 'randaugment'
   erasing: 0.2
   cutmix: 0.05
-  virtual_batch: 64  # 通过 nbs 控制梯度累积的等效批量大小
-  non_hb_extra_copies: 1  # 非HB类样本在训练列表中的额外复制次数
-  hb_class_keyword: 'Hole-Break'  # 用于匹配HB类别名称的关键词
+  virtual_batch: 64
+  non_hb_extra_copies: 1
+  negative_extra_copies: 0
+  hb_class_keyword: 'Hole-Break'
   
   # 优化器
   optimizer: 'SGD'  # 可选: SGD, Adam, AdamW
@@ -57,43 +58,65 @@ training:
 
   # 多阶段训练策略（CPU场景）
   stages:
-    - name: 'coarse'
-      epochs: 40
+    - name: 'warmup'
+      epochs: 10
       freeze_layers: 6
-      dropout_rate: 0.2
-      dropout_layers: 3
-      pruning_amount: 0.2
-      lr0: 0.012
-      lrf: 0.012
-      mosaic: 0.85
-      copy_paste: 0.25
-      mixup: 0.18
-      cutmix: 0.2
-      erasing: 0.45
-      auto_augment: 'randaugment'
-      scale: 0.6
-      box: 1.05
-      cls: 0.55
+      dropout_rate: 0.0
+      dropout_layers: 0
+      pruning_amount: 0.0
+      lr0: 0.01
+      lrf: 0.01
+      mosaic: 0.0
+      copy_paste: 0.0
+      mixup: 0.0
+      cutmix: 0.0
+      erasing: 0.0
+      auto_augment: null
+      scale: 0.3
+      box: 1.0
+      cls: 0.5
       dfl: 1.0
-      close_mosaic: 12
+      close_mosaic: 0
+      fraction: 0.5
+      run_name: 'train_stage_warmup'
+    - name: 'coarse'
+      epochs: 25
+      freeze_layers: 3
+      dropout_rate: 0.05
+      dropout_layers: 2
+      pruning_amount: 0.1
+      lr0: 0.011
+      lrf: 0.011
+      mosaic: 0.5
+      copy_paste: 0.15
+      mixup: 0.05
+      cutmix: 0.05
+      erasing: 0.2
+      auto_augment: 'randaugment'
+      scale: 0.5
+      box: 1.05
+      cls: 0.5
+      dfl: 1.0
+      close_mosaic: 6
+      fraction: 1.0
       run_name: 'train_stage_coarse'
     - name: 'finetune'
-      epochs: 40
+      epochs: 15
       freeze_layers: 0
-      dropout_rate: 0.05
-      dropout_layers: 1
+      dropout_rate: 0.0
+      dropout_layers: 0
       pruning_amount: 0.0
       lr0: 0.006
       lrf: 0.006
       mosaic: 0.0
-      copy_paste: 0.35
+      copy_paste: 0.0
       mixup: 0.0
       cutmix: 0.0
-      erasing: 0.15
-      auto_augment: 'augmix'
-      scale: 0.45
-      box: 1.25
-      dfl: 1.15
+      erasing: 0.05
+      auto_augment: null
+      scale: 0.4
+      box: 1.0
+      dfl: 1.0
       cls: 0.45
       close_mosaic: 1
       conf_thres: 0.001
@@ -102,10 +125,10 @@ training:
 
 # 验证参数
 validation:
-  val_interval: 1  # 每N个epoch验证一次
-  save_period: 5  # 每N个epoch保存一次
-  conf_thres: 0.001  # 置信度阈值
-  iou_thres: 0.65     # NMS的IoU阈值
+  val_interval: 1
+  save_period: 5
+  conf_thres: 0.001
+  iou_thres: 0.65
   split: 'val'
 
 # 输出路径
